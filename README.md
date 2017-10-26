@@ -22,7 +22,15 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    $ export RUNSCOPE_ACCESS_TOKEN=YOUR-ACCESS-TOKEN
+
+```ruby
+include RunscopeCi
+
+# trigger_bucket_and_poll_results(trigger_url, expected_result, interval_sleep=5, retry_limit=60)
+res = RunscopeCi::trigger_bucket_and_poll_results("https://api.runscope.com/radar/bucket/your-guid/trigger", "pass")
+puts "res -> #{res}"
+```
 
 ## Development
 
