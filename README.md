@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kcampos/runscope-ci.svg?branch=master)](https://travis-ci.org/kcampos/runscope-ci)
+
 # RunscopeCi
 
 This gem is an API wrapper for RunScope(https://www.runscope.com/) that enables easy integration into CI systems.
