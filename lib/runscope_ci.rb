@@ -21,7 +21,7 @@ module RunscopeCi
   end
 
   def extract_tests(response_data)
-    response_data[:data][:runs].collect { |run| RunscopeCi::RsTest.new(run) }
+    response_data["data"]["runs"].collect { |run| RunscopeCi::RsTest.new(run) }
   end
 
   def trigger_bucket_and_poll_results(trigger_url, expected_result, interval_sleep=5, retry_limit=60)
