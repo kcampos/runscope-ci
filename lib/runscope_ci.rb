@@ -1,5 +1,6 @@
 require "runscope_ci/version"
 require 'httparty'
+require 'byebug'
 
 module RunscopeCi
   include HTTParty
@@ -21,13 +22,13 @@ module RunscopeCi
   end
 
   def extract_tests(response_data)
-    response_data[:data][:runs].collect { |run| RunscopeCi::RsTest.new(run) }
+    response_data["data"]["runs"].collect { |run| RunscopeCi::RsTest.new(run) }
   end
 
   def trigger_bucket_and_poll_results(trigger_url, expected_result, interval_sleep=5, retry_limit=60)
     tests = extract_tests(trigger_bucket(trigger_url))
     attempt = 1
-    
+
     until ( tests.collect {|t| t.result_detail }.select{|rs_test| rs_test.result == "working"}.empty? )
       puts "attempt #{attempt}"
       raise("Timed out waiting for results, tests still 'working'") if attempt > retry_limit
@@ -54,28 +55,28 @@ module RunscopeCi
 
     # expects parsed json 'run' block from Runscope API response like trigger bucket call
     def initialize(run)
-      @status           = run[:status]
-      @environment_id   = run[:environment_id]
-      @bucket_key       = run[:bucket_key]
-      @variables        = run[:variables]
-      @agent            = run[:agent]
-      @test_name        = run[:test_name]
-      @test_id          = run[:test_id]
-      @url              = run[:url]
-      @region           = run[:region]
-      @environment_name = run[:environment_name]
-      @test_url         = run[:test_url]
-      @test_run_url     = run[:test_run_url]
-      @test_run_id      = run[:test_run_id]
+      puts run
+      @status           = run["status"]
+      @environment_id   = run["environment_id"]
+      @bucket_key       = run["bucket_key"]
+      @variables        = run["variables"]
+      @agent            = run["agent"]
+      @test_name        = run["test_name"]
+      @test_id          = run["test_id"]
+      @url              = run["url"]
+      @region           = run["region"]
+      @environment_name = run["environment_name"]
+      @test_url         = run["test_url"]
+      @test_run_url     = run["test_run_url"]
+      @test_run_id      = run["test_run_id"]
     end
 
     def result_detail
       res = self.class.get("/buckets/#{@bucket_key}/tests/#{@test_id}/results/#{@test_run_id}",
         headers: {"Authorization" => "Bearer #{access_token}"})
-
       raise "Received error #{res.code} #{res.message} #{res.body}" unless res.code == 200
       result = JSON.parse(res.body)["data"]
-
+      
       @started_at         = result["started_at"]
       @finished_at        = result["finished_at"]
       @scripts_defined    = result["scripts_defined"]
