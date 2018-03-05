@@ -1,6 +1,5 @@
 require "runscope_ci/version"
 require 'httparty'
-require 'byebug'
 
 module RunscopeCi
   include HTTParty
@@ -55,7 +54,6 @@ module RunscopeCi
 
     # expects parsed json 'run' block from Runscope API response like trigger bucket call
     def initialize(run)
-      puts run
       @status           = run["status"]
       @environment_id   = run["environment_id"]
       @bucket_key       = run["bucket_key"]
