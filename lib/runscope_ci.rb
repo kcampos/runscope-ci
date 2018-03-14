@@ -27,19 +27,27 @@ module RunscopeCi
   def trigger_bucket_and_poll_results(trigger_url, expected_result, interval_sleep=5, retry_limit=60)
     tests = extract_tests(trigger_bucket(trigger_url))
     attempt = 1
-
+    
     until ( tests.collect {|t| t.result_detail }.select{|rs_test| rs_test.result == "working"}.empty? )
-      puts "attempt #{attempt}"
+      puts "Waiting for tests to finish working, attempt #{attempt}"
       raise("Timed out waiting for results, tests still 'working'") if attempt > retry_limit
       sleep interval_sleep
       attempt += 1
     end
 
-    [all_tests_have_result?(expected_result, tests),tests]
+    all_tests_have_result?(expected_result, tests)
   end
 
-  def all_tests_have_result?(result, tests)
-    tests.all?{|t| t.result == result}
+  def all_tests_have_result?(expected_result, tests)
+    unless tests.all?{|t| t.result == expected_result}
+      puts "Tests finished working. Bucket returned unexpected test results:"
+      tests.select{|t| t.result != "#{expected_result}"}.each do |t|
+        puts "#{t.test_name}: #{t.result} - #{t.url}"
+      end
+      raise("Unexpected test results")
+    else
+      return "Tests finished working. Success! All results were: #{expected_result}"
+    end
   end
 
   class RsTest
@@ -69,7 +77,7 @@ module RunscopeCi
       @test_run_id      = run["test_run_id"]
     end
 
-    def result_detail
+    def result_detail 
       res = self.class.get("/buckets/#{@bucket_key}/tests/#{@test_id}/results/#{@test_run_id}",
         headers: {"Authorization" => "Bearer #{access_token}"})
       raise "Received error #{res.code} #{res.message} #{res.body}" unless res.code == 200
