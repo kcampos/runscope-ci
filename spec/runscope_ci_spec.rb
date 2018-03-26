@@ -102,7 +102,7 @@ describe RunscopeCi do
         let(:extracted_tests) { [passed_test_1, passed_test_2, failed_test_1] }
 
         context "and we expected all to pass" do
-          it { is_expected.to eql([false, extracted_tests]) }
+          it { expect{subject}.to raise_error(RuntimeError, "Unexpected test results") }
         end
       end
 
@@ -110,13 +110,13 @@ describe RunscopeCi do
         let(:extracted_tests) { [passed_test_1, passed_test_2] }
 
         context "and we expected all to pass" do
-          it { is_expected.to eql([true, extracted_tests]) }
+          it { is_expected.to eql("Tests finished working. Success! All results were: pass") }
         end
 
         context "and we expected all to fail" do
           let(:expected_result) { "fail" }
 
-          it { is_expected.to eql([false, extracted_tests]) }
+          it { expect{subject}.to raise_error(RuntimeError, "Unexpected test results") }
         end
       end
 
@@ -126,11 +126,11 @@ describe RunscopeCi do
         context "and we expected all to fail" do
           let(:expected_result) { "fail" }
 
-          it { is_expected.to eql([true, extracted_tests]) }
+          it { is_expected.to eql("Tests finished working. Success! All results were: fail") }
         end
 
         context "and we expected all to pass" do
-          it { is_expected.to eql([false, extracted_tests]) }
+          it { expect{subject}.to raise_error(RuntimeError, "Unexpected test results") }
         end
       end
     end
